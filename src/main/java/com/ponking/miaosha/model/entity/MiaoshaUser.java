@@ -6,11 +6,11 @@ import java.util.Date;
 
 /**
  * @author Ponking
- * @ClassName User
+ * @ClassName MiaoshaUser
  * @date 2020/3/28--12:45
  **/
 @Data
-public class User {
+public class MiaoshaUser {
     private Long id;
     private String nickname;
     private String password;

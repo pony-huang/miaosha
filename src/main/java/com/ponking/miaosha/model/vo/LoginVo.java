@@ -8,11 +8,11 @@ import javax.validation.constraints.NotNull;
 
 /**
  * @author Ponking
- * @ClassName LoginVO
+ * @ClassName LoginVo
  * @date 2020/3/29--15:07
  **/
 @Data
-public class LoginVO {
+public class LoginVo {
     @NotNull
     @IsMobile
     private String mobile;

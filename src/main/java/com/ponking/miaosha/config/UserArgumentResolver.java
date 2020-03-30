@@ -1,11 +1,10 @@
 package com.ponking.miaosha.config;
 
-import com.ponking.miaosha.model.entity.User;
-import com.ponking.miaosha.service.UserService;
-import com.ponking.miaosha.service.impl.UserServiceImpl;
+import com.ponking.miaosha.model.entity.MiaoshaUser;
+import com.ponking.miaosha.service.MiaoshaUserService;
+import com.ponking.miaosha.service.impl.MiaoshaUserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -26,12 +25,12 @@ import javax.servlet.http.HttpServletResponse;
 public class UserArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Autowired
-    private UserService userService;
+    private MiaoshaUserService miaoshaUserService;
 
     @Override
     public boolean supportsParameter(MethodParameter methodParameter) {
         Class<?> clazz = methodParameter.getParameterType();
-        return clazz == User.class;
+        return clazz == MiaoshaUser.class;
     }
 
     @Override
@@ -42,13 +41,13 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
         HttpServletRequest request = nativeWebRequest.getNativeRequest(HttpServletRequest.class);
         HttpServletResponse response = nativeWebRequest.getNativeResponse(HttpServletResponse.class);
 
-        String paramToken = request.getParameter(UserServiceImpl.COOKI_NAME_TOKEN);
-        String cookieToken = getCookieValue(request, UserServiceImpl.COOKI_NAME_TOKEN);
+        String paramToken = request.getParameter(MiaoshaUserServiceImpl.COOKI_NAME_TOKEN);
+        String cookieToken = getCookieValue(request, MiaoshaUserServiceImpl.COOKI_NAME_TOKEN);
         if(StringUtils.isEmpty(cookieToken) && StringUtils.isEmpty(paramToken)){
             return null;
         }
         String token = StringUtils.isEmpty(paramToken) ? cookieToken:paramToken;
-        return userService.getByToken(response,token);
+        return miaoshaUserService.getByToken(response,token);
     }
 
     private String getCookieValue(HttpServletRequest request, String cookiName) {

@@ -1,9 +1,7 @@
 package com.ponking.miaosha;
 
-import com.ponking.miaosha.dao.UserDao;
-import com.ponking.miaosha.model.entity.User;
+import com.ponking.miaosha.dao.MiaoshaUserDao;
 import com.ponking.miaosha.redis.RedisService;
-import com.ponking.miaosha.redis.UserKey;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class MiaoshaApplicationTests {
 
     @Autowired
-    private UserDao userDao;
+    private MiaoshaUserDao miaoshaUserDao;
 
     @Autowired
     private RedisService redisService;

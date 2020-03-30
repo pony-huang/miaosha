@@ -1,14 +1,13 @@
 package com.ponking.miaosha.service.impl;
 
-import com.ponking.miaosha.dao.UserDao;
+import com.ponking.miaosha.dao.MiaoshaUserDao;
 import com.ponking.miaosha.exception.GlobalException;
-import com.ponking.miaosha.model.entity.User;
-import com.ponking.miaosha.model.vo.LoginVO;
+import com.ponking.miaosha.model.entity.MiaoshaUser;
+import com.ponking.miaosha.model.vo.LoginVo;
 import com.ponking.miaosha.redis.MiaoshaUserKey;
 import com.ponking.miaosha.redis.RedisService;
-import com.ponking.miaosha.redis.UserKey;
 import com.ponking.miaosha.result.ResultStatus;
-import com.ponking.miaosha.service.UserService;
+import com.ponking.miaosha.service.MiaoshaUserService;
 import com.ponking.miaosha.util.MD5Util;
 import com.ponking.miaosha.util.UUIDUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +19,11 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author Ponking
- * @ClassName UserServiceImpl
+ * @ClassName MiaoshaUserServiceImpl
  * @date 2020/3/29--15:40
  **/
 @Service
-public class UserServiceImpl implements UserService {
+public class MiaoshaUserServiceImpl implements MiaoshaUserService {
 
     public static final String COOKI_NAME_TOKEN = "token";
 
@@ -32,54 +31,54 @@ public class UserServiceImpl implements UserService {
     private RedisService redisService;
 
     @Autowired
-    private UserDao userDao;
+    private MiaoshaUserDao miaoshaUserDao;
 
     @Override
-    public User getById(Long id) {
-        return userDao.getById(id);
+    public MiaoshaUser getById(Long id) {
+        return miaoshaUserDao.getById(id);
     }
 
     @Override
-    public User getByToken(HttpServletResponse response, String token) {
+    public MiaoshaUser getByToken(HttpServletResponse response, String token) {
         if (StringUtils.isEmpty(token)) {
             return null;
         }
-        User user = redisService.get(MiaoshaUserKey.token, token, User.class);
+        MiaoshaUser miaoshaUser = redisService.get(MiaoshaUserKey.token, token, MiaoshaUser.class);
         //延长有效期
-        if (user != null) {
-            addCookie(response, token, user);
+        if (miaoshaUser != null) {
+            addCookie(response, token, miaoshaUser);
         }
-        return user;
+        return miaoshaUser;
     }
 
 
     @Override
-    public boolean login(HttpServletResponse response, LoginVO loginVo) {
+    public boolean login(HttpServletResponse response, LoginVo loginVo) {
         if (loginVo == null) {
             throw new GlobalException(ResultStatus.SERVER_ERROR);
         }
         String mobile = loginVo.getMobile();
         String formPass = loginVo.getPassword();
         //判断手机号是否存在
-        User user = getById(Long.parseLong(mobile));
-        if (user == null) {
+        MiaoshaUser miaoshaUser = getById(Long.parseLong(mobile));
+        if (miaoshaUser == null) {
             throw new GlobalException(ResultStatus.MOBILE_NOT_EXIST);
         }
         //验证密码
-        String dbPass = user.getPassword();
-        String saltDB = user.getSalt();
+        String dbPass = miaoshaUser.getPassword();
+        String saltDB = miaoshaUser.getSalt();
         String calcPass = MD5Util.formPassToDBPass(formPass, saltDB);
         if (!calcPass.equals(dbPass)) {
             throw new GlobalException(ResultStatus.PASSWORD_ERROR);
         }
         //生成cookie
         String token = UUIDUtil.uuid();
-        addCookie(response, token, user);
+        addCookie(response, token, miaoshaUser);
         return true;
     }
 
-    private void addCookie(HttpServletResponse response, String token, User user) {
-        redisService.set(MiaoshaUserKey.token, token, user);
+    private void addCookie(HttpServletResponse response, String token, MiaoshaUser miaoshaUser) {
+        redisService.set(MiaoshaUserKey.token, token, miaoshaUser);
         Cookie cookie = new Cookie(COOKI_NAME_TOKEN, token);
         cookie.setMaxAge(MiaoshaUserKey.token.expireSeconds());
         cookie.setPath("/");
